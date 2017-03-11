@@ -29,4 +29,11 @@ class wikibedItem(scrapy.Item):
     categorybed_url = scrapy.Field()
     RESP_ITER_KEYS_WIKI_BED = ['pubbed_title', 'categorybed_id', 'categorybed_name', 'categorybed_url']
 
+class citiaoItem(scrapy.Item):
+    _id = scrapy.Field() # 唯一标识符
+    name = scrapy.Field() # 词条名称
+    url = scrapy.Field() # 词条页面超链接
+    html = scrapy.Field() # 词条完整的HTML页面
+    content = scrapy.Field() # 词条页面除上面、左面、下面的部分
 
+    RESP_ITER_KEYS_CITIAO = ['name', 'url', 'html', 'content']
