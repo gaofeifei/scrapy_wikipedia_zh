@@ -37,3 +37,15 @@ class citiaoItem(scrapy.Item):
     content = scrapy.Field() # 词条页面除上面、左面、下面的部分
 
     RESP_ITER_KEYS_CITIAO = ['name', 'url', 'html', 'content']
+
+    def __init__(self):
+        super(citiaoItem, self).__init__()
+
+    def to_dict(self):
+        d = {}
+        for k, v in self.items():
+            if isinstance(v, (citiaoItem)):
+                d[k] = v.to_dict()
+            else:
+                d[k] = v
+        return d

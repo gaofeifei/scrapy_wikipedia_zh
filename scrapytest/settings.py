@@ -67,7 +67,13 @@ ROBOTSTXT_OBEY = False
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'scrapytest.pipelines.ScrapytestPipeline': 300,
+    'scrapytest.pipelines.MongodbPipeline': 301
 }
+
+MONGOD_DB = "wikipedia"
+MONGOD_HOST = "localhost"
+MONGOD_PORT = 27017
+CITIAO_COLLECTION = "citiao"
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
