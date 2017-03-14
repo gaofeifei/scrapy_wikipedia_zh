@@ -66,7 +66,8 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'scrapytest.pipelines.ScrapytestPipeline': 300,
+    #'scrapytest.pipelines.ScrapytestPipeline': 300,
+    'scrapytest.pipelines.BestsellerItemJsonPipeline': 300,
     'scrapytest.pipelines.MongodbPipeline': 301
 }
 
