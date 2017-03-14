@@ -15,19 +15,47 @@ class myspiderItem(scrapy.Item):
 
 
 class wikiclassifyItem(scrapy.Item):
-    pub_title = scrapy.Field()
-    category_id = scrapy.Field()
-    category_name = scrapy.Field()
-    category_url = scrapy.Field()
-    RESP_ITER_KEYS_WIKI_CLASS = ['pub_title', 'category_id', 'category_name', 'category_url']
+    _id = scrapy.Field()  # 唯一标识符
+    title = scrapy.Field()  # 分类
+    name = scrapy.Field()  # 子分类名称
+    url = scrapy.Field()  # 子分类超链接
+
+    RESP_ITER_KEYS_WIKI_CLASS = ['title', 'name', 'url']
+
+    def __init__(self):
+        super(wikiclassifyItem, self).__init__()
+
+    def to_dict(self):
+        d = {}
+        for k, v in self.items():
+            if isinstance(v, (wikiclassifyItem)):
+                d[k] = v.to_dict()
+            else:
+                d[k] = v
+        return d
 
 
-class wikibedItem(scrapy.Item):
-    pubbed_title = scrapy.Field()
-    categorybed_id = scrapy.Field()
-    categorybed_name = scrapy.Field()
-    categorybed_url = scrapy.Field()
-    RESP_ITER_KEYS_WIKI_BED = ['pubbed_title', 'categorybed_id', 'categorybed_name', 'categorybed_url']
+class linkItem(scrapy.Item):
+    _id = scrapy.Field()  # 唯一标识符
+    title = scrapy.Field()  # 一级目录名称
+    url_link = scrapy.Field()  # 一级目录超链接
+    name = scrapy.Field()  # 二级目录名称
+    url = scrapy.Field()  # 二级目录页面超链接
+
+    RESP_ITER_KEYS_LINK = ['title', 'url_link', 'name', 'url']
+
+    def __init__(self):
+        super(linkItem, self).__init__()
+
+    def to_dict(self):
+        d = {}
+        for k, v in self.items():
+            if isinstance(v, (linkItem)):
+                d[k] = v.to_dict()
+            else:
+                d[k] = v
+        return d
+
 
 class citiaoItem(scrapy.Item):
     _id = scrapy.Field() # 唯一标识符

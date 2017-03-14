@@ -1,57 +1,46 @@
-#-*-coding: utf-8-*-
+#  -*-coding: utf-8-*-
 
 import re
-import sys
 import scrapy
-import xlwt
-import urllib
-import urllib2
+from scrapy import Request
 from scrapytest.items import wikiclassifyItem
-from BeautifulSoup import BeautifulSoup, SoupStrainer
+from BeautifulSoup import BeautifulSoup
 
 
 class wikiclassifypage(scrapy.Spider):
     name = "wikiclassifypage3"  # 爬虫的名字，执行时使用
-    allowed_domains = ["wikipedia.kfd.me/"]  # 允许爬取的域名，非此域名的网页不会爬取
+    allowed_domains = ["wikipedia.kfd.me/"]
     start_urls = ["https://wikipedia.kfd.me/wiki/Wikipedia:%E5%88%86%E9%A1%9E%E7%B4%A2%E5%BC%95"]
 
-    def parse(self, response):  # 真正的爬虫方法
-        soup = BeautifulSoup(response.text)  # 得到
+
+    def __init__(self):
+        pass
+
+    def start_requests(self):
+        for url in self.start_urls:
+            req = Request(url)
+            req.meta['url'] = url
+            yield req
+
+    def parse(self, response):
+        url_link = response.meta['url']
         HOST_URL = "https://wikipedia.kfd.me"
         results = []
         print '**********start*********'
-        content_title = soup.find('h1', {'id': 'firstHeading'})
-        ct = content_title.string
-        print ct
+        html = response.body
+        soup = BeautifulSoup(html)
+        title = soup.find('h1', {'id': 'firstHeading'}).text
         links = soup.findAll('a', attrs={'href': re.compile('/wiki/Category: *?')})
-        print '!!!!!!!!!!!!!!'
-        # print links
         for link in links:
             # print link
             if len(links) > 0:
-                url_links = link.get('href')
-                url_link = HOST_URL + link.get('href')
-                title_link = link.text
-                # print title_link
-                # print url_link
-                wiki_class_item = (ct, url_links, title_link, url_link)
+                name = link.text
+                url = HOST_URL + link.get('href')
+                wiki_class_item = (title, name, url)
                 item = wikiclassifyItem()
                 keys = wikiclassifyItem.RESP_ITER_KEYS_WIKI_CLASS
                 for key in keys:
                     item[key] = wiki_class_item[keys.index(key)]
-                    print item[key]
-                    print '^^^^^'
+                    print '********'
                 results.append(item)
-                return results  # ????
-
-
-
-
-
-
-
-
-
-
-
-
+                return results

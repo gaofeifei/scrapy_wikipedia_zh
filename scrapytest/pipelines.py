@@ -2,7 +2,7 @@
 
 import time
 import pymongo
-from scrapytest.items import citiaoItem
+from scrapytest.items import citiaoItem,linkItem,wikiclassifyItem
 from scrapytest.utils import _default_mongo
 from twisted.internet.threads import deferToThread
 from scrapy.exporters import JsonItemExporter, CsvItemExporter, XMLGenerator
@@ -21,7 +21,7 @@ class ScrapytestPipeline(object):
 class BestsellerItemJsonPipeline(object):
 
     def open_spider(self, spider):
-        self.file = open('XXX.json', 'wb')
+        self.file = open('wiki_crawl.json', 'wb')
         self.exporter = JsonItemExporter(self.file, encoding='utf-8', ensure_ascii=False)
         self.exporter.start_exporting()
 
@@ -78,6 +78,37 @@ class MongodbPipeline(object):
 
         return item
 
+    def process_link(self, item, spider):
+        link = item.to_dict()
+        link["_id"] = link["url"]
+
+        if self.db[self.link_collection].find({"_id": link["_id"]}).count():
+            self.update_link(self.link_collection, link)
+        else:
+            try:
+                link["first_in"] = time.time()
+                link["last_modify"] = link["first_in"]
+                self.db[self.link_collection].insert(link)
+            except pymongo.errors.DuplicateKeyError:
+                self.update_link(self.link_collection, link)
+        return item
+
+    def process_wikiclassify(self, item, spider):
+        wikiclassify = item.to_dict()
+        wikiclassify["_id"] = wikiclassify["url"]
+
+        if self.db[self.wikiclassify_collection].find({"_id": wikiclassify["_id"]}).count():
+            self.update_wikiclassify(self.wikiclassify_collection, wikiclassify)
+        else:
+            try:
+                wikiclassify["first_in"] = time.time()
+                wikiclassify["last_modify"] = wikiclassify["first_in"]
+                self.db[self.wikiclassify_collection].insert(wikiclassify)
+            except pymongo.errors.DuplicateKeyError:
+                self.update_wikiclassify(self.wikiclassify_collection, wikiclassify)
+
+        return item
+
     def update_citiao(self, collection, item):
         updates = {}
         updates['last_modify'] = time.time()
@@ -87,3 +118,28 @@ class MongodbPipeline(object):
 
         updates_modifier = {"$set": updates}
         self.db[collection].update({"_id": item["_id"]}, updates_modifier)
+
+    def update_link(self, collection, item):
+        updates = {}
+        updates['last_modify'] = time.time()
+        for key in linkItem.RESP_ITER_KEYS_LINK:  #
+            if item.get(key) is not None:
+                updates[key] = item[key]
+
+        updates_modifier = {"$set": updates}
+        self.db[collection].update({"_id": item["_id"]}, updates_modifier)
+
+    def update_wikiclassify(self, collection, item):
+        updates = {}
+        updates['last_modify'] = time.time()
+        for key in wikiclassifyItem.RESP_ITER_KEYS_WIKI_CLASS:  #
+            if item.get(key) is not None:
+                updates[key] = item[key]
+
+        updates_modifier = {"$set": updates}
+        self.db[collection].update({"_id": item["_id"]}, updates_modifier)
+
+
+
+
+
